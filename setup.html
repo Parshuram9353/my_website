@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spin-X - Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        input {
+            padding: 8px;
+            width: 70%;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Spin-X Setup</h2>
+        <div id="inputs">
+            <div class="input-group">
+                <input type="text" placeholder="Enter option">
+            </div>
+        </div>
+        <button onclick="addInput()">Add a Part</button>
+        <button onclick="spinWheel()">Spin the Wheel</button>
+    </div>
+
+    <script>
+        let options = [];
+
+        function addInput() {
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'input-group';
+            inputGroup.innerHTML = '<input type="text" placeholder="Enter option">';
+            document.getElementById('inputs').appendChild(inputGroup);
+        }
+
+        function spinWheel() {
+            options = [];
+            const inputs = document.getElementsByTagName('input');
+            for (let input of inputs) {
+                if (input.value.trim()) {
+                    options.push(input.value.trim());
+                }
+            }
+            if (options.length > 0) {
+                localStorage.setItem('spinOptions', JSON.stringify(options));
+                window.location.href = 'wheel.html';
+            } else {
+                alert('Please add at least one option!');
+            }
+        }
+    </script>
+</body>
+</html>
