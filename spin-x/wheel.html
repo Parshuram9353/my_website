@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spin-X - Wheel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        #canvas {
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <button onclick="startSpin()">Start Spin</button>
+    <div id="result">
+        <h2>The Answer:</h2>
+        <p id="resultText"></p>
+        <button onclick="document.getElementById('result').style.display='none'">OK</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const options = JSON.parse(localStorage.getItem('spinOptions'));
+        let angle = 0;
+        let spinning = false;
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 200;
+            const sliceAngle = (2 * Math.PI) / options.length;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw wheel
+            for (let i = 0; i < options.length; i++) {
+                const startAngle = angle + (i * sliceAngle);
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.fillStyle = `hsl(${i * 360 / options.length}, 70%, 80%)`;
+                ctx.fill();
+                
+                // Add text
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.fillStyle = 'black';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(options[i], radius - 20, 5);
+                ctx.restore();
+            }
+
+            // Draw pointer
+            ctx.beginPath();
+            ctx.moveTo(centerX + radius + 20, centerY - 10);
+            ctx.lineTo(centerX + radius + 40, centerY);
+            ctx.lineTo(centerX + radius + 20, centerY + 10);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+        }
+
+        function startSpin() {
+            if (!spinning) {
+                spinning = true;
+                let speed = 0.2;
+                let duration = 10000; // 10 seconds
+
+                const spin = setInterval(() => {
+                    angle += speed;
+                    speed *= 0.99; // Gradual slowdown
+                    drawWheel();
+
+                    duration -= 16;
+                    if (duration <= 0) {
+                        clearInterval(spin);
+                        spinning = false;
+                        showResult();
+                    }
+                }, 16);
+            }
+        }
+
+        function showResult() {
+            const sliceAngle = (2 * Math.PI) / options.length;
+            const winningIndex = Math.floor(((2 * Math.PI - angle % (2 * Math.PI)) / sliceAngle) % options.length);
+            const resultText = document.getElementById('resultText');
+            resultText.textContent = options[winningIndex];
+            document.getElementById('result').style.display = 'block';
+        }
+
+        // Initial draw
+        drawWheel();
+    </script>
+</body>
+</html>
